@@ -1,0 +1,11 @@
+Reported original runtime, transcribed from the supplied Code/README.md
+This is a version inventory, not an installed-environment verification or lockfile.
+
+Python: 3.11.16
+R: 4.5.2
+R packages (source notation): data.table 1.18.0; lme4 2.0.6; quantreg 6.1; survival 3.8.3; splines (R base/recommended)
+dcm2niix: 1.0.20260724
+VTK: 9.3.1 with TotalSegmentator; 9.7.0 for separate rendering environment
+Other direct Python package versions: requirements.txt
+Parquet engine: required by pandas.read_parquet; original version not recorded
+Original job platform: Linux, Bash, SLURM; GPU for segmentation; EGL for headless rendering

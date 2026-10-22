@@ -1,0 +1,5 @@
+# Preserve byte-for-byte historical analysis plans and their recorded hashes.
+* -text
+# Six portable job examples use LF in this package.
+*.sh text eol=lf
+*.sbatch text eol=lf

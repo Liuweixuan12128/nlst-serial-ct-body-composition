@@ -1,0 +1,19 @@
+# Direct Python dependencies; recorded versions transcribed from the source README.
+# These pins describe the supplied workflow, not an independently rebuilt lockfile.
+# Python reported in the source: 3.11.16.
+numpy==2.4.6
+pandas==3.0.6
+scipy==1.17.1
+matplotlib==3.11.2
+Pillow==12.3.0
+tifffile==2026.3.3
+nibabel==5.4.2
+SimpleITK==2.5.6
+pydicom==3.0.2
+scikit-image==0.26.0
+TotalSegmentator==2.18.0
+nnunetv2==2.8.1
+torch==2.14.0
+idc-index==0.12.5
+# pandas.read_parquet requires a Parquet engine; its version was not recorded.
+pyarrow
