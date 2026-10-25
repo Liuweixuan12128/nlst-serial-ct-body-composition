@@ -228,21 +228,25 @@ def row_fig6(sf):
            right_cols=(("Per year (95% CI)", 1.06),), xlabel="Case − control slope (control SD/year)", fs=5.4)
     ax.set_xticklabels([fnum(t, "{:g}") for t in [-0.03, 0, 0.03]])
     style.source_data(pd.DataFrame(rows), "P2_Fig6", "e")
-    # f: largest true acceleration compatible with the data
+    # f: largest extra annual change compatible with the data. The upper 95% limit of the <1-year window is converted
+    # with the injection-recovery grid (onset 1 year before diagnosis), whose shift is linear in the injected rate.
     letter(sf, 0.6, 0.99, "f")
-    key = rd("p2_key_numbers.csv").set_index("measure").reindex(order)
+    pw = rd("power_grid.csv")
     ax = sf.add_axes([0.75, 0.2, 0.22, 0.62])
-    yy = -np.arange(len(order))
-    for y, m in zip(yy, order):
-        v = key.loc[m, "max_upper_bound_true_sd"]
-        ax.barh(y, v, height=0.56, color=mcol(m), alpha=0.25, edgecolor=mcol(m), lw=0.8,
-                hatch="////" if m in HOLLOW else None)
-        ax.text(v + 0.015, y, f"{v:.2f}", va="center", fontsize=5.3, color=INK2)
-        ax.text(-0.04, y, SHORTL[m], transform=ax.get_yaxis_transform(), ha="right", va="center", fontsize=5.6)
-    for xv, txt in [(0.2, "small"), (0.5, "moderate")]:
-        ax.axvline(xv, color=INK2, lw=0.5, ls=(0, (3, 2)))
-        ax.text(xv, 0.75, txt, fontsize=4.9, color=INK2, ha="center", va="bottom")
+    out = []
+    for y, (m, unit) in zip([0, -1], [("psm_fat_pct", "pp/year"), ("psm_lvol", "%/year")]):
+        hi = div[(div.measure == m) & (div.analysis == "interval z: case window vs controls")
+                 & (div.term == "windowcase: ends <1 y before dx")].hi.iloc[0]
+        g = pw[(pw.measure == m) & (pw.onset_years == 1.0) & (pw.multiple_of_normal == 1)].iloc[0]
+        k = hi / g.injected_shift
+        out.append(dict(measure=m, upper_limit_z=hi, shift_per_normal_rate=g.injected_shift,
+                        normal_rate_per_year=g.delta_per_year, multiple_of_normal=k, extra_per_year=k * g.delta_per_year))
+        ax.barh(y, k, height=0.5, color=mcol(m), alpha=0.25, edgecolor=mcol(m), lw=0.8)
+        ax.text(k + 0.06, y, f"{k * g.delta_per_year:.2f} {unit}", va="center", fontsize=5.3, color=INK2)
+        ax.text(-0.04, y, SHORTL[m] + (" gain" if m == "psm_fat_pct" else " loss"), transform=ax.get_yaxis_transform(),
+                ha="right", va="center", fontsize=5.6)
+    ax.axvline(1, color=INK2, lw=0.5, ls=(0, (3, 2)))
     ax.set_yticks([]); ax.spines["left"].set_visible(False)
-    ax.set_xlim(0, 0.75); ax.set_ylim(yy[-1] - 0.6, 0.9)
-    ax.set_xlabel("Largest compatible acceleration\n(true-change SD, upper 95% limit)")
-    style.source_data(key.reset_index()[["measure", "max_upper_bound_z", "max_upper_bound_true_sd"]], "P2_Fig6", "f")
+    ax.set_xlim(0, 2.6); ax.set_ylim(-1.6, 0.6); ax.set_xticks([0, 1, 2])
+    ax.set_xlabel("Largest extra change compatible\n(× normal annual rate)")
+    style.source_data(pd.DataFrame(out), "P2_Fig6", "f")

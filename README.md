@@ -1,6 +1,6 @@
 # Serial screening CT body composition before lung cancer diagnosis
 
-Analysis code for the NLST study of paraspinal muscle ageing, bone attenuation and lung density before lung cancer diagnosis. This repository is a code snapshot prepared from the 2026-10-19 submission package.
+Analysis code for the NLST study of paraspinal muscle ageing, bone attenuation and lung density before lung cancer diagnosis. This repository is a code snapshot aligned with the 2026-10-24 revised study package, the manuscript formatted for Frontiers in Endocrinology on 2026-10-25, and the supplementary-methods revision prepared on the same date. Journal formatting does not imply that the manuscript has been submitted or accepted.
 
 The package contains the image-processing, statistical-analysis and figure-generation source code, the historical analysis plans, and their original SHA-256 records. Participant-level measurements, image data, segmentation masks, QC decisions and generated statistical outputs were not present in the supplied code snapshot and are not included here. The package has not been rerun end to end during preparation.
 
@@ -11,7 +11,8 @@ The package contains the image-processing, statistical-analysis and figure-gener
 | `pipeline/` | Case/control selection, downloading, DICOM conversion, segmentation, measurement, QC, field-of-view assessment and spatial maps |
 | `stats/` | Normative models, reliability, muscle-ageing acceleration, reserve score, sensitivity analyses, power simulations and Table 1 |
 | `figures/` | Main and supplementary figure source code, plotting helpers and 3D rendering |
-| `docs/paper2/` | Original Chinese study-planning files and three subsequent English analysis plans |
+| `docs/paper2/` | Original study-planning files, three subsequent English analysis plans and a guide linking the revised supplementary methods to the implementation |
+| `docs/paper2/SUPPLEMENTARY_METHODS_GUIDE.md` | Supplementary Methods 1-4 source mapping, editorial clarifications and the unresolved slab-length direction label |
 | `results/p2/*_prespec_sha256.txt` | Original hashes and locally recorded timestamps for the three subsequent plans |
 | `requirements.txt` | Direct Python dependencies, with versions transcribed from the supplied environment description where available |
 | `requirements-render.txt` | Separate VTK version reported for 3D rendering |
@@ -51,14 +52,25 @@ Create `logs/`, `data/nlst/`, `data/nlst_serial/` and `results/p2/` before runni
 8. **3D assets.** `figures/p2_render3d.py`, `figures/p2_render_maps3d.py` and `figures/p2_render_reserve3d.py` create assets under `figures/assets/`. The original renders used a separate VTK 9.7.0 environment with EGL.
 9. **Figures.** Run `figures/p2_figs_main.py`, `figures/p2_figs_pheno.py`, `figures/p2_figs_ed.py` and `figures/p2_figs_adv.py`. Outputs go to `figures/p2/out/` unless overridden by the existing environment settings.
 
-Supplementary figure mapping: S1-S3 and S6 use `p2_figs_ed.py`; S4, S5, S7 and S8 use `p2_figs_main.py`; S10 is its `fig5` function; S9, S11 and S12 use `p2_figs_adv.py`.
+Current display numbering (10 main figures and 8 supplementary figures):
+
+- Main Figures 1-3: `P2_Fig1`-`P2_Fig3`; Figure 4: `P2_EDFig8`; Figure 5: `P2_Fig4`; Figure 6: `P2_Fig5`; Figure 7: `P2_Fig6`; Figure 8: `P2_EDFig10`; Figures 9-10: `P2_Fig7`-`P2_Fig8`.
+- Supplementary Figures S1-S3 and S6: `p2_figs_ed.py` (`ed1`, `ed2`, `ed3`, `ed6`); S4, S5 and S7: `p2_figs_main.py` (`ed4`, `ed5`, `ed7`); S8: `P2_EDFig9` from `p2_figs_adv.py`.
+
+Figure 7F (internal output `P2_Fig6`, panel f) now expresses the upper confidence limit as extra annual fat gain or muscle volume loss, calibrated against the post hoc injection-recovery grid with onset one year before diagnosis. It requires `results/p2/power_grid.csv`; see `PACKAGE_NOTES.md`.
 
 ## Analysis-plan provenance
 
 The three subsequent analysis-plan files and their hash records were copied byte for byte. The SHA-256 matches were verified when this package was prepared. Locally recorded timestamps do not establish independent preregistration. The reserve-score plan was written after component-level case-control differences were known; that analysis is exploratory. The original planning documents are retained as historical records, including their dated amendments.
 
+The revised supplement describes the implemented methods rather than reproducing those plans verbatim. Supplementary Methods 1-4 retain their subject mapping: reserve score, additional sensitivity analyses, image processing and longitudinal analyses, and body-size sensitivity. The [supplementary-methods guide](docs/paper2/SUPPLEMENTARY_METHODS_GUIDE.md) links these sections to the source files and distinguishes the final reported samples from historical plan wording. The original plans and hash records remain unchanged.
+
+## Outstanding interpretation check
+
+The supplementary-methods review identified a direction-label inconsistency in `stats/p2_bodysize_sens.R`: `y_slab = -log(slab_mm)` is standardised and then negated again as `nz_slab = -z_slab`, while the fitted contrast is labelled "per 1 SD shorter". The implemented predictor increases with residual log slab length. The actual analysis output must be reconciled with the label before interpreting that contrast. This update records the issue without changing the model, reversing an odds ratio or recalculating the reported result; see the [guide](docs/paper2/SUPPLEMENTARY_METHODS_GUIDE.md#slab-length-direction-check).
+
 ## Reproduction status
 
 This upload package provides source code. Numerical reproduction requires public image/table preparation, the original or updated QC decisions, and generated intermediate results. In particular, the per-scan measurements mentioned in the manuscript's draft data-availability statement are not included in the materials available for packaging. The statement should describe only files that are actually released.
 
-No manuscript results, cohort definitions, analysis models or historical hashed plans were changed when making this package. Changes to existing executable files are limited to working-directory and log-path configuration in the six shell/SLURM examples; details are in `PACKAGE_NOTES.md`.
+No analyses were rerun during packaging. The 2026-10-25 update incorporates the revised compatible-change panel from the supplied 2026-10-24 figure code, corrects the display numbering above, documents the supplementary-methods revision and refreshes package checksums. Existing portable working-directory settings in the six shell/SLURM examples are retained. Cohort selection, statistical-model source files and historical hashed plans were not changed; details are in `PACKAGE_NOTES.md`.
